@@ -1,39 +1,54 @@
 <template>
-  <div class="container">
-    <div class="box">
-      <h2>Book a Cabin</h2>
+  <div class="page-wrapper">
+    <button class="icon-btn" @click="goBack">
+      < Go back
+    </button>
 
-      <!-- DATE -->
-      <label>Date</label>
-      <input type="date" v-model="date" />
-      <p v-if="!date" class="error">Date is required</p>
+    <div class="container">
+      <div class="box">
+        <h2>Book a Cabin</h2>
 
-      <!-- FROM -->
-      <label>From</label>
-      <input type="time" v-model="fromTime" />
-      <p v-if="!fromTime" class="error">Start time is required</p>
+        <!-- INLINE FORM -->
+        <div class="row">
+          
+          <div class="field">
+            <label>Date</label>
+            <input ref="dateRef" class="input" placeholder="Select date" />
+            <p v-if="!date" class="error">Required</p>
+          </div>
 
-      <!-- TO -->
-      <label>To</label>
-      <input type="time" v-model="toTime" />
-      <p v-if="!toTime" class="error">End time is required</p>
+          <div class="field">
+            <label>From</label>
+            <input ref="fromRef" class="input" placeholder="Start time" />
+            <p v-if="!fromTime" class="error">Required</p>
+          </div>
 
-      <!-- TIME VALIDATION -->
-      <p v-if="timeError" class="error">
-        Start time must be before end time
-      </p>
+          <div class="field">
+            <label>To</label>
+            <input ref="toRef" class="input" placeholder="End time" />
+            <p v-if="!toTime" class="error">Required</p>
+          </div>
 
-      <!-- BUTTON -->
-      <button :disabled="isInvalid" @click="checkAvailability">
-        Check Availability
-      </button>
+        </div>
+
+        <p v-if="timeError" class="error center">
+          Start time must be before end time
+        </p>
+
+        <button :disabled="isInvalid" @click="checkAvailability">
+          Check Availability
+        </button>
+      </div>
     </div>
+
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from "vue"
+import { ref, computed, onMounted } from "vue"
 import { useRouter } from "vue-router"
+import flatpickr from "flatpickr"
+import "flatpickr/dist/flatpickr.min.css"
 
 const router = useRouter()
 
@@ -41,13 +56,55 @@ const date = ref("")
 const fromTime = ref("")
 const toTime = ref("")
 
-/* 🔥 Time validation */
+const dateRef = ref(null)
+const fromRef = ref(null)
+const toRef = ref(null)
+const goBack = () => {
+  router.push("/dashboard")
+}
+
+/* 🔥 Initialize flatpickr */
+onMounted(() => {
+  flatpickr(dateRef.value, {
+    dateFormat: "Y-m-d",
+    minDate: "today",
+    onChange: (_, dateStr) => {
+      date.value = dateStr
+    }
+  })
+
+  flatpickr(fromRef.value, {
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    time_24hr: true,
+    onChange: (_, timeStr) => {
+      fromTime.value = timeStr
+
+      // 🔥 restrict TO time
+      if (toRef.value._flatpickr) {
+        toRef.value._flatpickr.set("minTime", timeStr)
+      }
+    }
+  })
+
+  flatpickr(toRef.value, {
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    time_24hr: true,
+    onChange: (_, timeStr) => {
+      toTime.value = timeStr
+    }
+  })
+})
+
+/* 🔥 Validation */
 const timeError = computed(() => {
   if (!fromTime.value || !toTime.value) return false
   return fromTime.value >= toTime.value
 })
 
-/* 🔥 Disable button */
 const isInvalid = computed(() => {
   return (
     !date.value ||
@@ -72,37 +129,57 @@ const checkAvailability = () => {
 </script>
 
 <style>
+/* container */
 .container {
   display: flex;
   justify-content: center;
-  margin-top: 50px;
+  align-items: center;
+  height: 100vh;
 }
 
+/* card */
 .box {
   background: white;
   padding: 30px;
-  border-radius: 10px;
-  width: 500px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+/* row layout */
+.row {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+/* field */
+.field {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
-input {
-  padding: 8px;
+/* input */
+.input {
+  padding: 10px;
   border-radius: 6px;
   border: 1px solid #ccc;
+  font-size: 14px;
 }
 
+/* button */
 button {
-  margin-top: 10px;
+  margin-top: 20px;
   padding: 10px;
+  width: 100%;
   border-radius: 6px;
   border: none;
   background: #4f46e5;
   color: white;
   cursor: pointer;
+  font-weight: 500;
 }
 
 button:disabled {
@@ -110,9 +187,14 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* error */
 .error {
   color: red;
   font-size: 12px;
-  margin-top: -5px;
+  margin-top: 5px;
+}
+
+.center {
+  text-align: center;
 }
 </style>

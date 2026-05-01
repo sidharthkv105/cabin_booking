@@ -14,7 +14,7 @@
 
 <script setup>
 import { ref } from "vue"
-import axios from "axios"
+import api from "../api"
 import { useRouter } from "vue-router"
 
 // ✅ FIXED IMPORT
@@ -37,7 +37,7 @@ const signup = async () => {
   }
 
   try {
-    await axios.post("http://localhost:8000/auth/signup", {
+    await api.post("/auth/signup", {
       username: username.value,
       password: password.value,
     })

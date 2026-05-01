@@ -1,6 +1,6 @@
 /* ===== VARIABLES ===== */
 :root {
-  --text: #6b6375;
+  --text: #08060d;
   --text-h: #08060d;
   --bg: #fff;
   --border: #e5e4e7;
@@ -52,12 +52,14 @@ h2 {
 
 h3 {
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600;
+  margin-top: 30px;
+  margin-bottom: 25px;
 }
 
 h4 {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 800;
 }
 
 p {
@@ -89,9 +91,37 @@ button {
 }
 
 .primary {
-  background: var(--accent);
+  margin: auto; 
+  width: 200px;
+  height: 50px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #eef2ff;       /* soft indigo */
+  color: #4f46e5;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+
+  border: 2px solid #4f46e5;
+  border-radius: 10px;
+
+  font-size: 20px;
+  font-weight: 680;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.primary:hover {
+  background: #4f46e5;
   color: white;
-  padding: 6px 12px;
+  transform: translateY(-2px);
+}
+
+.primary:active {
+  transform: scale(0.95);
 }
 
 .danger {
@@ -124,6 +154,8 @@ button {
   border-radius: 999px;
   font-weight: 600;
   animation: pulse 1.5s infinite;
+  margin-left: auto; 
+  margin-right: 10px;
 }
 
 /* ===== ANIMATION ===== */
@@ -139,8 +171,15 @@ button {
 }
 
 .desc {
-  font-size: 12px;
+  font-size: 13px;
   color: #555;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;   /* 🔥 number of lines */
+  -webkit-box-orient: vertical;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .empty {
@@ -164,23 +203,6 @@ button {
   text-decoration: none;  /* remove blue underline if any */
   cursor: pointer;
   transition: 0.2s;
-}
-
-/* hover */
-.menu-item:hover {
-  background: #334155;
-  color: white;
-}
-
-/* active */
-.menu-item.active {
-  background: #4f46e5;
-  color: white;
-}
-
-/* icons */
-.menu-item i {
-  font-size: 16px;
 }
 
 /* ===== LAYOUT SYSTEM ===== */
@@ -265,8 +287,9 @@ button {
 /* cards */
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 30px;
+  margin-bottom: 50px;
 }
 
 .card {
@@ -275,6 +298,8 @@ button {
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0,0,0,0.08);
   transition: 0.2s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .card:hover {
@@ -283,7 +308,7 @@ button {
 }
 
 .card.past {
-  opacity: 0.6;
+  opacity: 0.8;
   background: #f3f4f6;
 }
 
@@ -297,5 +322,122 @@ button {
 .card.ongoing {
   background: #dcfce7;        /* light green */
   border: 2px solid #22c55e;
+}
+
+/* wrapper for full page */
+.page-wrapper {
+  position: relative;
+  height: 100vh;
+}
+
+.icon-btn {
+  width: 120px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #eef2ff;       /* soft indigo */
+  color: #4f46e5;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+
+  border: none;
+  border-radius: 10px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid #4f46e5;
+  border-radius: 10px;
+}
+
+/* hover */
+.icon-btn:hover {
+  background: #4f46e5;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* click */
+.icon-btn:active {
+  transform: scale(0.95);
+}
+
+.danger {
+  background: #ef4444;   /* red */
+  color: white;
+  transition: all 0.2s ease;
+  margin-top: auto;
+}
+
+/* 🔥 Hover style */
+.danger:hover {
+  background: #a12f2f;      /* white bg */
+}
+
+/* truncate text */
+.meeting-name {
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* wrapper */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+/* tooltip box */
+.tooltip-text {
+  visibility: hidden;
+  opacity: 0;
+
+  position: absolute;
+  bottom: 120%;        /* show above */
+  left: 50%;
+  transform: translateX(-50%);
+
+  background: #111827;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+
+  font-size: 12px;
+  white-space: nowrap;
+
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+/* arrow */
+.tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #111827 transparent transparent transparent;
+}
+
+/* show on hover */
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+input {
+  width: 100%;
+  max-width: 300px;
+
+  display: block;
+  margin: 10px auto;
 }
 

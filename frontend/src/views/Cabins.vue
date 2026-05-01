@@ -16,35 +16,35 @@
 
     <!-- FORM -->
     <div v-if="selected" class="form-box">
-      <h3>Meeting Details</h3>
+      <h2>Meeting Details</h2>
 
       <!-- Meeting Name -->
       <input
         v-model="meetingName"
         placeholder="Meeting name"
-        maxlength="15"
+        maxlength="30"
       />
       <p class="char-count">
-        {{ meetingName.length }}/15
+        {{ meetingName.length }}/30
       </p>
       <p v-if="meetingName.length === 0" class="error">
         Meeting name is required
       </p>
-      <p v-else-if="meetingName.length > 15" class="error">
-        Max 15 characters allowed
+      <p v-else-if="meetingName.length > 30" class="error">
+        Max 30 characters allowed
       </p>
 
       <!-- Description -->
       <textarea
         v-model="description"
         placeholder="Description (optional)"
-        maxlength="30"
+        maxlength="50"
       ></textarea>
       <p class="char-count">
-        {{ description.length }}/30
+        {{ description.length }}/50
       </p>
-      <p v-if="description.length > 30" class="error">
-        Max 30 characters allowed
+      <p v-if="description.length > 50" class="error">
+        Max 50 characters allowed
       </p>
 
       <!-- Button -->
@@ -60,7 +60,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue"
-import axios from "axios"
+import api from "../api"
 import { useRoute, useRouter } from "vue-router"
 
 const route = useRoute()
@@ -77,7 +77,7 @@ const from = route.query.from
 const to = route.query.to
 
 onMounted(async () => {
-  const res = await axios.get("http://localhost:8000/booking/availability", {
+  const res = await api.get("http://localhost:8000/booking/availability", {
     params: { date, from_time: from, to_time: to }
   })
   cabins.value = res.data
@@ -93,8 +93,8 @@ const selectCabin = (cabin) => {
 const isInvalid = computed(() => {
   return (
     !meetingName.value ||
-    meetingName.value.length > 15 ||
-    description.value.length > 30
+    meetingName.value.length > 30 ||
+    description.value.length > 50
   )
 })
 

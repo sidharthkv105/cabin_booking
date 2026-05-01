@@ -3,14 +3,14 @@
 
     <!-- HEADER -->
     <div class="topbar">
-      <h2>Cabin Booking</h2>
+      <!-- <h2>Cabin Booking</h2> -->
       <button class="primary" @click="goBooking">
-        Book Cabin
+        Book a Cabin
       </button>
     </div>
 
     <!-- UPCOMING -->
-    <h3>Upcoming Bookings</h3>
+    <h3>● Upcoming Bookings</h3>
 
     <div v-if="loading" class="empty">Loading...</div>
     <div v-else-if="upcoming.length === 0" class="empty">
@@ -26,13 +26,20 @@
 
         <div class="card-header">
           <div class="title">
-            <h4>{{ b.meeting_name }}</h4>
+            <div class="tooltip">
+              <h4 class="meeting-name">
+                {{ b.meeting_name }}
+              </h4>
 
-            <span v-if="isOngoing(b)" class="ongoing-badge">
-              ● ONGOING
-            </span>
+              <span class="tooltip-text">
+                {{ b.meeting_name }}
+              </span>
+            </div>
           </div>
 
+          <span v-if="isOngoing(b)" class="ongoing-badge">
+              ● ONGOING
+            </span>
           <span class="tag">{{ getCabinName(b.cabin_id) }}</span>
         </div>
 
@@ -41,9 +48,15 @@
           <p>⏰ {{ formatTime(b.from) }} - {{ formatTime(b.to) }}</p>
         </div>
 
-        <p v-if="b.description" class="desc">
-          {{ b.description }}
-        </p>
+        <div v-if="b.description" class="tooltip desc-wrapper">
+          <p class="desc">
+            {{ b.description }}
+          </p>
+
+          <span class="tooltip-text desc-tooltip">
+            {{ b.description }}
+          </span>
+        </div>
 
         <button class="danger" @click="cancelBooking(b.id)">
           Cancel Booking
@@ -53,7 +66,7 @@
     </div>
 
     <!-- PAST -->
-    <h3 class="past-title">Past Bookings</h3>
+    <h3 class="past-title">● Past Bookings</h3>
 
     <div v-if="past.length === 0" class="empty">
       No past bookings
@@ -63,7 +76,17 @@
       <div v-for="b in past" :key="b.id" class="card past">
 
         <div class="card-header">
-          <h4>{{ b.meeting_name }}</h4>
+          <div class="title">
+            <div class="tooltip">
+              <h4 class="meeting-name">
+                {{ b.meeting_name }}
+              </h4>
+
+              <span class="tooltip-text">
+                {{ b.meeting_name }}
+              </span>
+            </div>
+          </div>
           <span class="tag">{{ getCabinName(b.cabin_id) }}</span>
         </div>
 
@@ -72,9 +95,15 @@
           <p>⏰ {{ formatTime(b.from) }} - {{ formatTime(b.to) }}</p>
         </div>
 
-        <p v-if="b.description" class="desc">
-          {{ b.description }}
-        </p>
+        <div v-if="b.description" class="tooltip desc-wrapper">
+          <p class="desc">
+            {{ b.description }}
+          </p>
+
+          <span class="tooltip-text desc-tooltip">
+            {{ b.description }}
+          </span>
+        </div>
 
       </div>
     </div>
@@ -84,7 +113,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue"
-import axios from "axios"
+import api from "../api"
 import { useRouter } from "vue-router"
 
 const router = useRouter()
@@ -118,7 +147,7 @@ const goBooking = () => router.push("/booking")
 // 🔥 FETCH BOOKINGS
 const fetchBookings = async () => {
   try {
-    const res = await axios.get("http://localhost:8000/booking/my", {
+    const res = await api.get("http://localhost:8000/booking/my", {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`
       }
@@ -150,8 +179,15 @@ const fetchBookings = async () => {
 const splitBookings = () => {
   const now = new Date()
 
-  upcoming.value = allBookings.value.filter(b => b.endTime >= now)
-  past.value = allBookings.value.filter(b => b.endTime < now)
+  // Upcoming → earliest first
+  upcoming.value = allBookings.value
+    .filter(b => b.endTime >= now)
+    .sort((a, b) => a.startTime - b.startTime)
+
+  // Past → oldest first
+  past.value = allBookings.value
+    .filter(b => b.endTime < now)
+    .sort((a, b) => b.startTime - a.startTime)
 }
 
 // 🔥 AUTO UPDATE
