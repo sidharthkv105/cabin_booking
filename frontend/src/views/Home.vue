@@ -147,7 +147,7 @@ const goBooking = () => router.push("/booking")
 // 🔥 FETCH BOOKINGS
 const fetchBookings = async () => {
   try {
-    const res = await api.get("http://localhost:8000/booking/my", {
+    const res = await api.get("/booking/my", {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`
       }
@@ -208,7 +208,7 @@ const cancelBooking = async (id) => {
   if (!confirm("Cancel booking?")) return
 
   try {
-    await api.delete(`http://localhost:8000/booking/${id}`, {
+    await api.delete(`/booking/${id}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`
       }

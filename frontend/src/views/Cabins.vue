@@ -77,7 +77,7 @@ const from = route.query.from
 const to = route.query.to
 
 onMounted(async () => {
-  const res = await api.get("http://localhost:8000/booking/availability", {
+  const res = await api.get("/booking/availability", {
     params: { date, from_time: from, to_time: to }
   })
   cabins.value = res.data
@@ -101,22 +101,28 @@ const isInvalid = computed(() => {
 const confirmBooking = async () => {
   if (isInvalid.value) return
 
-  await api.post(
-    "http://localhost:8000/booking",
-    {
-      cabin_id: selected.value.id,
-      date,
-      from_time: from,
-      to_time: to,
-      meeting_name: meetingName.value,
-      description: description.value
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`
-      }
-    }
-  )
+  try {
+  await api.post("/booking", {
+    cabin_id: selected.value.id,
+    date,
+    from_time: from,
+    to_time: to,
+    meeting_name: meetingName.value,
+    description: description.value
+  })
+
+  router.push("/dashboard")
+
+} catch (err) {
+  const message =
+    err.response?.data?.detail || "Booking failed"
+
+  // 🔥 popup
+  alert(message)
+
+  // 🔥 redirect back
+  router.push("/booking")
+}
 
   localStorage.setItem(
     "bookingSuccess",

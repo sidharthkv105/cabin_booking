@@ -1,10 +1,22 @@
 import axios from "axios"
-import router from "./router"   // ✅ correct
+import router from "./router"
 
 const api = axios.create({
   baseURL: "http://localhost:8000"
 })
 
+// 🔥 ADD TOKEN TO EVERY REQUEST
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem("token")
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+
+  return config
+})
+
+// 🔥 HANDLE EXPIRED TOKEN
 api.interceptors.response.use(
   res => res,
   err => {
