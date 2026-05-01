@@ -1,47 +1,90 @@
 <template>
-  <div class="container">
-    <div class="box">
-      <h2>Dashboard</h2>
+  <div class="page">
 
-      <div class="actions">
-        <button @click="goBooking">Book Cabin</button>
-        <button class="logout" @click="logout">Logout</button>
-      </div>
+    <!-- HEADER -->
+    <div class="topbar">
+      <h2>Cabin Booking</h2>
+      <button class="primary" @click="goBooking">
+        + Book Cabin
+      </button>
+    </div>
 
-      <h3>Your Bookings</h3>
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- UPCOMING -->
+      <h3>Upcoming Bookings</h3>
 
       <div v-if="loading" class="empty">Loading...</div>
-      <div v-else-if="bookings.length === 0" class="empty">
-        No bookings yet
+      <div v-else-if="upcoming.length === 0" class="empty">
+        No upcoming bookings
       </div>
 
-      <!-- ✅ Booking cards -->
       <div class="cards">
-        <div v-for="b in bookings" :key="b.id" class="card">
-          <h4>{{ b.meeting_name }}</h4>
+        <div 
+          v-for="b in upcoming" 
+          :key="b.id" 
+          :class="['card', { ongoing: isOngoing(b) }]"
+        >
 
-          <p><b>Cabin:</b> {{ getCabinName(b.cabin_id) }}</p>
-          <p><b>Date:</b> {{ b.date }}</p>
-          <p><b>Time:</b> {{ formatTime(b.from) }} - {{ formatTime(b.to) }}</p>
+          <div class="card-header">
+            <div class="title">
+              <h4>{{ b.meeting_name }}</h4>
 
-          <p v-if="b.description" class="note">
+              <!-- 🔥 ONGOING TAG -->
+              <span v-if="isOngoing(b)" class="ongoing-badge">
+                ● ONGOING
+              </span>
+            </div>
+
+            <span class="tag">{{ getCabinName(b.cabin_id) }}</span>
+          </div>
+
+          <div class="info">
+            <p>📅 {{ b.date }}</p>
+            <p>⏰ {{ formatTime(b.from) }} - {{ formatTime(b.to) }}</p>
+          </div>
+
+          <p v-if="b.description" class="desc">
             {{ b.description }}
           </p>
 
-          <button class="cancel" @click="cancelBooking(b.id)">
-            Cancel
+          <button class="danger" @click="cancelBooking(b.id)">
+            Cancel Booking
           </button>
+
         </div>
       </div>
+
+      <!-- PAST -->
+      <h3 class="past-title">Past Bookings</h3>
+
+      <div v-if="past.length === 0" class="empty">
+        No past bookings
+      </div>
+
+      <div class="cards">
+        <div v-for="b in past" :key="b.id" class="card past">
+
+          <div class="card-header">
+            <h4>{{ b.meeting_name }}</h4>
+            <span class="tag">{{ getCabinName(b.cabin_id) }}</span>
+          </div>
+
+          <div class="info">
+            <p>📅 {{ b.date }}</p>
+            <p>⏰ {{ formatTime(b.from) }} - {{ formatTime(b.to) }}</p>
+          </div>
+
+          <p v-if="b.description" class="desc">
+            {{ b.description }}
+          </p>
+
+        </div>
+      </div>
+
     </div>
 
-    <!-- ✅ popup -->
-    <div v-if="message" class="overlay">
-      <div class="modal">
-        <p>{{ message }}</p>
-        <button @click="message = ''">OK</button>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -51,10 +94,12 @@ import axios from "axios"
 import { useRouter } from "vue-router"
 
 const router = useRouter()
-const bookings = ref([])
-const message = ref("")
+
+const upcoming = ref([])
+const past = ref([])
 const loading = ref(true)
 
+// cabin mapping
 const cabinMap = {
   1: "Cabin A",
   2: "Cabin B",
@@ -62,151 +107,165 @@ const cabinMap = {
   4: "Cabin D"
 }
 
-const getCabinName = (id) => cabinMap[id] || `Cabin ${id}`
+const getCabinName = (id) => cabinMap[id] || id
 
-const formatTime = (time) => time?.slice(0, 5)
+const formatTime = (t) => t?.slice(0, 5)
+const isOngoing = (b) => {
+  if (!b.startTime || !b.endTime) return false
+
+  const now = new Date()
+  return b.startTime <= now && b.endTime >= now
+}
 
 const goBooking = () => router.push("/booking")
 
-const logout = () => {
-  localStorage.removeItem("token")
-  router.push("/login")
-}
-
 onMounted(async () => {
   try {
-    const msg = localStorage.getItem("bookingSuccess")
-    if (msg) {
-      message.value = msg
-      localStorage.removeItem("bookingSuccess")
-    }
-
     const res = await axios.get("http://localhost:8000/booking/my", {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`
       }
     })
 
-    bookings.value = res.data.map(b => ({
-      ...b,
-      from: b.start_time,
-      to: b.end_time
-    }))
+    const now = new Date()
+
+    const formatted = res.data
+      .map(b => {
+        const start = new Date(`${b.date}T${b.start_time}`)
+        const end = new Date(`${b.date}T${b.end_time}`)
+
+        return {
+          ...b,
+          from: b.start_time,
+          to: b.end_time,
+          startTime: start,
+          endTime: end
+        }
+      })
+      .sort((a, b) => a.startTime - b.startTime)
+
+    upcoming.value = formatted.filter(b => b.endTime >= now)
+    past.value = formatted.filter(b => b.endTime < now)
+
   } catch (err) {
-    console.error(err)
+    console.error("API ERROR:", err)
+    alert("Failed to load bookings")   // 👈 helps debugging
   } finally {
-    loading.value = false
+    loading.value = false   // ✅ ALWAYS runs
   }
 })
 
 const cancelBooking = async (id) => {
-  if (!confirm("Cancel this booking?")) return
+  if (!confirm("Cancel booking?")) return
 
-  await axios.delete(`http://localhost:8000/booking/${id}`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`
-    }
-  })
+  try {
+    await axios.delete(`http://localhost:8000/booking/${id}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`
+      }
+    })
 
-  bookings.value = bookings.value.filter(b => b.id !== id)
+    upcoming.value = upcoming.value.filter(b => b.id !== id)
+
+  } catch (err) {
+    console.error(err)
+    alert("Failed to cancel booking")
+  }
 }
 </script>
 
 <style>
-/* page background */
-.container {
+.page {
+  padding: 30px;
+  background: #f5f6fa;
   min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: start;
-  padding-top: 40px;
-  background: #f5f5f5;
 }
 
-/* main box */
-.box {
-  width: 400px;
-  background: white;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-/* actions */
-.actions {
+/* header */
+.topbar {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-/* cards container */
-.cards {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-/* individual card */
-.card {
-  padding: 12px;
-  border-radius: 8px;
-  background: #fafafa;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-  text-align: left;
-}
-
-.card h4 {
-  margin-bottom: 5px;
-}
-
-/* note */
-.note {
-  font-size: 13px;
-  color: #555;
-  margin-top: 5px;
+  align-items: center;
+  margin-bottom: 25px;
 }
 
 /* buttons */
-button {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.logout {
-  background: #ddd;
-}
-
-.cancel {
-  margin-top: 8px;
-  background: #f87171;
+.primary {
+  background: #4f46e5;
   color: white;
+  padding: 6px 12px;
+  font-size: 14px;
+  border-radius: 6px;
 }
 
-/* empty state */
-.empty {
-  text-align: center;
-  color: #777;
+.danger {
+  background: #ef4444;
+  color: white;
   margin-top: 10px;
+  width: 100%;
 }
 
-/* popup */
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
+/* layout */
+.content {
   width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
+}
+
+/* cards */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.card.past {
+  opacity: 0.6;
+  background: #f3f4f6;
+}
+
+/* card header */
+.card-header {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
 }
 
-.modal {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
+.tag {
+  background: #e0e7ff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+/* info */
+.info {
+  margin: 10px 0;
+}
+
+.desc {
+  font-size: 13px;
+  color: #555;
+}
+
+/* empty */
+.empty {
+  color: #888;
+  margin-bottom: 10px;
+}
+
+.past-title {
+  margin-top: 30px;
+}
+
+/* 🔥 ONGOING CARD STYLE */
+.card.ongoing {
+  background: #dcfce7;        /* light green */
+  border: 2px solid #22c55e;
 }
 </style>

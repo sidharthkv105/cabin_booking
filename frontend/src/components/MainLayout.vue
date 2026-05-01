@@ -50,19 +50,48 @@ const logout = () => {
 .layout {
   display: flex;
   height: 100vh;
+  margin: 0;           /* ✅ remove outer gap */
+  overflow-x: hidden; 
 }
 
-/* sidebar */
+body {
+  margin: 0;           /* ✅ IMPORTANT */
+}
+
 .sidebar {
   width: 200px;
-  background: #ffffff;
-  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  height: 100vh;          /* ✅ full screen height */
+  position: fixed;        /* ✅ lock position */
+  top: 0;
+  left: 0;
+
+  background: #1f2937;
+  color: white;
   padding: 10px;
-  transition: 0.3s;
+
+  overflow: hidden;       /* ✅ no scroll */
 }
 
 .sidebar.collapsed {
   width: 60px;
+}
+
+.sidebar.collapsed + .content {
+  margin-left: 60px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 6px;
+  color: white;
+}
+
+.item:hover {
+  background: #374151;   /* hover effect */
 }
 
 /* toggle button */
@@ -78,19 +107,6 @@ const logout = () => {
   gap: 10px;
 }
 
-.item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px;
-  cursor: pointer;
-  border-radius: 6px;
-}
-
-.item:hover {
-  background: #f0f0f0;
-}
-
 .logout {
   margin-top: auto;
   color: red;
@@ -98,8 +114,9 @@ const logout = () => {
 
 /* content */
 .content {
-  flex: 1;
-  background: #f5f5f5;
-  padding: 20px;
+  margin-left: 200px;     /* ✅ same as sidebar width */
+  padding: 30px;
+  background: #f5f6fa;
+  min-height: 100vh;
 }
 </style>
