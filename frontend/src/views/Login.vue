@@ -1,60 +1,58 @@
 <template>
-  <div class="login-container">
-    <h2>Login</h2>
+  <div class="container">
+    <div class="box">
+      <h2>Login</h2>
 
-    <input v-model="username" placeholder="Username" />
-    <input v-model="password" type="password" placeholder="Password" />
+      <input v-model="username" placeholder="Username" />
+      <input v-model="password" type="password" placeholder="Password" />
 
-    <button @click="login">Login</button>
+      <button @click="login">Login</button>
 
-    <p v-if="error" style="color:red">{{ error }}</p>
+      <p>
+        No account?
+        <span @click="goSignup">Signup</span>
+      </p>
+
+      <p v-if="error" class="error">{{ error }}</p>
+    </div>
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from "vue"
 import axios from "axios"
+import { useRouter } from "vue-router"
 
-export default {
-  data() {
-    return {
-      username: "",
-      password: "",
-      error: ""
-    }
-  },
-  methods: {
-    async login() {
-      try {
-        const res = await axios.post("http://localhost:8000/auth/login", {
-          username: this.username,
-          password: this.password
-        })
+const router = useRouter()
 
-        localStorage.setItem("token", res.data.access_token)
+const username = ref("")
+const password = ref("")
+const error = ref("")
 
-        alert("Login success")
-      } catch (err) {
-        this.error = "Invalid username or password"
-      }
-    }
+const goSignup = () => router.push("/signup")
+
+const login = async () => {
+  try {
+    const res = await axios.post("http://localhost:8000/auth/login", {
+      username: username.value,
+      password: password.value,
+    })
+
+    // ✅ store JWT
+    localStorage.setItem("token", res.data.access_token)
+
+    router.push("/dashboard")
+  } catch {
+    error.value = "Invalid credentials"
   }
 }
 </script>
 
 <style>
-.login-container {
-  width: 300px;
-  margin: auto;
-  margin-top: 100px;
-  text-align: center;
-}
-input {
-  display: block;
-  margin: 10px auto;
-  padding: 8px;
-  width: 100%;
-}
-button {
-  padding: 8px 16px;
-}
+.container { display:flex; justify-content:center; align-items:center; height:100vh; background:#f5f5f5; }
+.box { width:300px; padding:20px; background:white; border-radius:8px; box-shadow:0 5px 15px rgba(0,0,0,0.1); }
+input { display:block; width:100%; margin:10px 0; padding:8px; }
+button { width:100%; padding:8px; }
+.error { color:red; text-align:center; }
+span { cursor:pointer; color:blue; }
 </style>

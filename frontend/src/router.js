@@ -1,18 +1,26 @@
 import { createRouter, createWebHistory } from "vue-router"
-
-import Login from "./components/Login.vue"
-import Signup from "./components/Signup.vue"
-import Home from "./components/Home.vue"
-import Booking from "./components/Booking.vue"
-import Cabins from "./components/Cabins.vue"
+import User from "./views/User.vue"
+import MainLayout from "./components/MainLayout.vue"
+import Login from "./views/Login.vue"
+import Signup from "./views/Signup.vue"
+import Home from "./views/Home.vue"
+import Booking from "./views/Booking.vue"
+import Cabins from "./views/Cabins.vue"
 
 const routes = [
-  { path: "/", redirect: "/login" },
+  { path: "/", redirect: "/dashboard" },
+
+  {
+    path: "/",
+    component: MainLayout,
+    children: [
+      { path: "dashboard", component: Home },
+      { path: "user", component: User }
+    ]
+  },
+
   { path: "/login", component: Login },
-  { path: "/signup", component: Signup },
-  { path: "/dashboard", component: Home },
-  { path: "/booking", component: Booking },
-  { path: "/cabins", component: Cabins }, 
+  { path: "/signup", component: Signup }
 ]
 
 const router = createRouter({

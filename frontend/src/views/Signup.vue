@@ -16,7 +16,9 @@
 import { ref } from "vue"
 import axios from "axios"
 import { useRouter } from "vue-router"
-import AuthBox from "./AuthBox.vue"
+
+// ✅ FIXED IMPORT
+import AuthBox from "../components/AuthBox.vue"
 
 const router = useRouter()
 
@@ -27,6 +29,13 @@ const error = ref("")
 const goLogin = () => router.push("/login")
 
 const signup = async () => {
+  error.value = ""   // ✅ clear previous error
+
+  if (!username.value || !password.value) {
+    error.value = "All fields are required"
+    return
+  }
+
   try {
     await axios.post("http://localhost:8000/auth/signup", {
       username: username.value,
