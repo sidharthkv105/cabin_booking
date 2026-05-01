@@ -6,6 +6,7 @@ from app.db import get_db
 from app.models import Booking
 from pydantic import BaseModel
 from app.auth import get_current_user
+from fastapi import HTTPException
 
 router = APIRouter(prefix="/booking")
 
@@ -54,6 +55,21 @@ def create_booking(
     db: Session = Depends(get_db),
     user: dict = Depends(get_current_user)
 ):
+    # 🔥 CHECK FOR TIME OVERLAP
+    existing = db.query(Booking).filter(
+        Booking.cabin_id == data.cabin_id,
+        Booking.date == data.date,
+        Booking.start_time < data.to_time,
+        Booking.end_time > data.from_time
+    ).first()
+
+    if existing:
+        raise HTTPException(
+            status_code=400,
+            detail="Cabin already booked for this time slot"
+        )
+
+    # ✅ CREATE BOOKING
     booking = Booking(
         user_id=user["user_id"],
         cabin_id=data.cabin_id,
