@@ -45,6 +45,8 @@ class BookingRequest(BaseModel):
     date: date
     from_time: time
     to_time: time
+    meeting_name: str
+    description: str | None = None
 
 @router.post("/")
 def create_booking(
@@ -53,11 +55,13 @@ def create_booking(
     user: dict = Depends(get_current_user)
 ):
     booking = Booking(
-        user_id=user["user_id"],   # ✅ dynamic
+        user_id=user["user_id"],
         cabin_id=data.cabin_id,
         date=data.date,
         start_time=data.from_time,
-        end_time=data.to_time
+        end_time=data.to_time,
+        meeting_name=data.meeting_name,
+        description=data.description
     )
 
     db.add(booking)
@@ -74,7 +78,20 @@ def get_my_bookings(
         Booking.user_id == user["user_id"]
     ).all()
 
-    return bookings
+    result = []
+
+    for b in bookings:
+        result.append({
+            "id": b.id,
+            "cabin_id": b.cabin_id,
+            "date": str(b.date),
+            "start_time": str(b.start_time),
+            "end_time": str(b.end_time),
+            "meeting_name": b.meeting_name,     # ✅ important
+            "description": b.description        # ✅ optional
+        })
+
+    return result
 
 @router.delete("/{booking_id}")
 def cancel_booking(booking_id: int, db: Session = Depends(get_db)):

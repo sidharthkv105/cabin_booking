@@ -17,3 +17,5 @@ class Booking(Base):
     date = Column(Date)
     start_time = Column(Time)
     end_time = Column(Time)
+    meeting_name = Column(String)
+    description = Column(String, nullable=True)
