@@ -101,7 +101,7 @@ const isInvalid = computed(() => {
 const confirmBooking = async () => {
   if (isInvalid.value) return
 
-  await axios.post(
+  await api.post(
     "http://localhost:8000/booking",
     {
       cabin_id: selected.value.id,

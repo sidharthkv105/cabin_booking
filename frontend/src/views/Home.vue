@@ -208,7 +208,7 @@ const cancelBooking = async (id) => {
   if (!confirm("Cancel booking?")) return
 
   try {
-    await axios.delete(`http://localhost:8000/booking/${id}`, {
+    await api.delete(`http://localhost:8000/booking/${id}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`
       }
