@@ -1,15 +1,18 @@
 <template>
-  <AuthBox title="Signup" :error="error">
-    <input v-model="username" placeholder="Username" />
-    <input v-model="password" type="password" placeholder="Password" />
+  <div class="container">
+    <div class="box">
+      <h2>SignUp</h2>
+      <input v-model="username" placeholder="Username" />
+      <input v-model="password" type="password" placeholder="Password" />
 
-    <button @click="signup">Signup</button>
+      <button @click="signup">Signup</button>
 
-    <template #footer>
-      Already have an account?
-      <span @click="goLogin">Login</span>
-    </template>
-  </AuthBox>
+      <p>
+        Already have an account?
+        <span @click="goLogin">Login</span>
+      </p>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -48,3 +51,8 @@ const signup = async () => {
   }
 }
 </script>
+
+<style>
+.error { color:red; text-align:center; }
+span { cursor:pointer; color:blue; }
+</style>

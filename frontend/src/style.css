@@ -331,28 +331,29 @@ button {
 }
 
 .icon-btn {
-  width: 120px;
+  position: absolute;   /* 🔥 key */
+  top: 0px;
+  left: 20px;
+
   height: 40px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  background: #eef2ff;       /* soft indigo */
+  background: #eef2ff;
   color: #4f46e5;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 
-  border: none;
+  border: 2px solid #4f46e5;
   border-radius: 10px;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 
   font-size: 14px;
   font-weight: 600;
 
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 2px solid #4f46e5;
-  border-radius: 10px;
 }
 
 /* hover */

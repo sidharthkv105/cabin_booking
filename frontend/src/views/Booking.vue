@@ -137,15 +137,7 @@ const checkAvailability = () => {
   height: 100vh;
 }
 
-/* card */
-.box {
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 600px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-}
+
 
 /* row layout */
 .row {
@@ -167,19 +159,6 @@ const checkAvailability = () => {
   border-radius: 6px;
   border: 1px solid #ccc;
   font-size: 14px;
-}
-
-/* button */
-button {
-  margin-top: 20px;
-  padding: 10px;
-  width: 100%;
-  border-radius: 6px;
-  border: none;
-  background: #4f46e5;
-  color: white;
-  cursor: pointer;
-  font-weight: 500;
 }
 
 button:disabled {

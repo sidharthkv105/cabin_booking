@@ -1,59 +1,65 @@
 <template>
-  <div class="container">
-    <h2>Select Cabin</h2>
+  <div class="page-wrapper">
+    <button class="icon-btn" @click="goBack">
+      < Go back
+    </button>
 
-    <!-- CABINS -->
-    <div class="grid">
-      <div
-        v-for="cabin in cabins"
-        :key="cabin.id"
-        :class="['cabin', cabin.booked ? 'booked' : 'available']"
-        @click="selectCabin(cabin)"
-      >
-        {{ cabin.name }}
+    <div class="container">
+      <h2>Select Cabin</h2>
+
+      <!-- CABINS -->
+      <div class="grid">
+        <div
+          v-for="cabin in cabins"
+          :key="cabin.id"
+          :class="['cabin', cabin.booked ? 'booked' : 'available']"
+          @click="selectCabin(cabin)"
+        >
+          {{ cabin.name }}
+        </div>
       </div>
-    </div>
 
-    <!-- FORM -->
-    <div v-if="selected" class="form-box">
-      <h2>Meeting Details</h2>
+      <!-- FORM -->
+      <div v-if="selected" class="form-box">
+        <h2>Meeting Details</h2>
 
-      <!-- Meeting Name -->
-      <input
-        v-model="meetingName"
-        placeholder="Meeting name"
-        maxlength="30"
-      />
-      <p class="char-count">
-        {{ meetingName.length }}/30
-      </p>
-      <p v-if="meetingName.length === 0" class="error">
-        Meeting name is required
-      </p>
-      <p v-else-if="meetingName.length > 30" class="error">
-        Max 30 characters allowed
-      </p>
+        <!-- Meeting Name -->
+        <input
+          v-model="meetingName"
+          placeholder="Meeting name"
+          maxlength="30"
+        />
+        <p class="char-count">
+          {{ meetingName.length }}/30
+        </p>
+        <p v-if="meetingName.length === 0" class="error">
+          Meeting name is required
+        </p>
+        <p v-else-if="meetingName.length > 30" class="error">
+          Max 30 characters allowed
+        </p>
 
-      <!-- Description -->
-      <textarea
-        v-model="description"
-        placeholder="Description (optional)"
-        maxlength="50"
-      ></textarea>
-      <p class="char-count">
-        {{ description.length }}/50
-      </p>
-      <p v-if="description.length > 50" class="error">
-        Max 50 characters allowed
-      </p>
+        <!-- Description -->
+        <textarea
+          v-model="description"
+          placeholder="Description (optional)"
+          maxlength="50"
+        ></textarea>
+        <p class="char-count">
+          {{ description.length }}/50
+        </p>
+        <p v-if="description.length > 50" class="error">
+          Max 50 characters allowed
+        </p>
 
-      <!-- Button -->
-      <button
-        :disabled="isInvalid"
-        @click="confirmBooking"
-      >
-        Confirm Booking ({{ selected.name }})
-      </button>
+        <!-- Button -->
+        <button
+          :disabled="isInvalid"
+          @click="confirmBooking"
+        >
+          Confirm Booking ({{ selected.name }})
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -87,6 +93,17 @@ const selectCabin = (cabin) => {
   if (!cabin.booked) {
     selected.value = cabin
   }
+}
+
+const goBack = () => {
+  router.push({
+    path: "/booking",
+    query: {
+      date: route.query.date,
+      from: route.query.from,
+      to: route.query.to
+    }
+  })
 }
 
 /* 🔥 Validation */
@@ -210,12 +227,15 @@ const confirmBooking = async () => {
 /* button */
 button {
   padding: 10px 20px;
+  width: auto;
   margin-top: 10px;
   border-radius: 6px;
   border: none;
   background: #4f46e5;
   color: white;
   cursor: pointer;
+  margin: auto;   /* 🔥 center horizontally */
+  display: block; 
 }
 
 /* disabled */

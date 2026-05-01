@@ -31,7 +31,7 @@ defineProps({
 }
 
 .box {
-  width: 300px;
+  width: 500px;
   padding: 25px;
   background: white;
   border-radius: 10px;
