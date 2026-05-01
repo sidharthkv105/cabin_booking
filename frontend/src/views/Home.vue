@@ -5,7 +5,7 @@
     <div class="topbar">
       <h2>Cabin Booking</h2>
       <button class="primary" @click="goBooking">
-        + Book Cabin
+        Book Cabin
       </button>
     </div>
 

@@ -119,4 +119,11 @@ body {
   background: #f5f6fa;
   min-height: 100vh;
 }
+
+.item,
+.item * {
+  color: inherit !important;
+}
+
 </style>
+
